@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Growth · Cresium</title>
+<style>
+:root {
+  --bg:#ffffff; --bg2:#f6f6f3; --bg3:#efefec;
+  --text:#1a1a1a; --text2:#6b6b67; --text3:#9b9b96;
+  --border:rgba(0,0,0,0.09); --border2:rgba(0,0,0,0.16);
+  --green-bg:#EAF3DE; --green-text:#3B6D11; --green-dot:#639922;
+  --amber-bg:#FAEEDA; --amber-text:#854F0B; --amber-dot:#BA7517;
+  --red-bg:#FCEBEB; --red-text:#A32D2D; --red-dot:#E24B4A;
+  --gray-bg:#f0efea; --gray-text:#5F5E5A;
+  --radius:8px; --radius-lg:12px;
+  --mono:'SF Mono','Fira Code','Fira Mono',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1c1a; --bg2:#252523; --bg3:#2e2e2b;
+    --text:#e8e8e4; --text2:#9b9b96; --text3:#6b6b67;
+    --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.16);
+    --green-bg:#27500A; --green-text:#C0DD97; --green-dot:#97C459;
+    --amber-bg:#633806; --amber-text:#FAC775; --amber-dot:#EF9F27;
+    --red-bg:#791F1F; --red-text:#F7C1C1; --red-dot:#F09595;
+    --gray-bg:#2e2e2b; --gray-text:#9b9b96;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg3);color:var(--text);min-height:100vh;padding:2rem 1rem}
+.container{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--bg);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden}
+.header{padding:1.5rem 1.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.header-left{display:flex;flex-direction:column;gap:4px}
+.eyebrow{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.07em;text-transform:uppercase}
+.week-title{font-size:20px;font-weight:600;color:var(--text)}
+.hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:background .15s;font-family:var(--sans)}
+.btn:hover{background:var(--bg2)}
+.btn.on{background:var(--bg2);color:var(--text)}
+.upload-btn{font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--sans)}
+.upload-btn:hover{background:var(--bg2)}
+.body{padding:1.25rem 1.75rem 1.5rem}
+.qstrip{display:flex;gap:6px;margin-bottom:1.1rem}
+.qtab{font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px;border:1px solid var(--border2);cursor:pointer;color:var(--text2);background:transparent;font-family:var(--sans)}
+.qtab.on{background:var(--bg2);color:var(--text)}
+.strip{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+.pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
+.pill.g{background:var(--green-bg);color:var(--green-text)}
+.pill.a{background:var(--amber-bg);color:var(--amber-text)}
+.pill.r{background:var(--red-bg);color:var(--red-text)}
+.pill.n{background:var(--gray-bg);color:var(--gray-text)}
+.pd{width:6px;height:6px;border-radius:50%}
+.pd.g{background:var(--green-dot)}.pd.a{background:var(--amber-dot)}.pd.r{background:var(--red-dot)}.pd.n{background:var(--text3)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-size:10px;font-weight:600;color:var(--text3);text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+thead th.r{text-align:right}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:hover{background:var(--bg2)}
+tbody tr:last-child{border-bottom:none}
+td{padding:9px 10px;vertical-align:middle;color:var(--text)}
+td.mn{font-weight:600;font-size:13px;line-height:1.3}
+td.sub{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.4}
+td.num{text-align:right;font-family:var(--mono);font-size:12px}
+td.muted{color:var(--text3)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.badge.g{background:var(--green-bg);color:var(--green-text)}
+.badge.a{background:var(--amber-bg);color:var(--amber-text)}
+.badge.r{background:var(--red-bg);color:var(--red-text)}
+.badge.n{background:var(--gray-bg);color:var(--gray-text)}
+.bdot{width:5px;height:5px;border-radius:50%}
+.bdot.g{background:var(--green-dot)}.bdot.a{background:var(--amber-dot)}.bdot.r{background:var(--red-dot)}.bdot.n{background:var(--text3)}
+.trend{font-family:var(--mono);font-size:11px}
+.trend.up{color:var(--green-dot)}.trend.dn{color:var(--red-dot)}.trend.nt{color:var(--text3)}
+input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;border:1px solid var(--border2);border-radius:4px;padding:4px 6px;background:var(--bg);color:var(--text)}
+.nd{font-family:var(--mono);font-size:12px;color:var(--text3)}
+.divrow td{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);background:var(--bg2);padding:5px 10px;border-bottom:1px solid var(--border)}
+.hist-header{padding:1.25rem 1.75rem 0.75rem;border-bottom:1px solid var(--border)}
+.hist-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px}
+.hist-sub{font-size:11px;color:var(--text3)}
+.hist-wrap{overflow-x:auto}
+.hist-wrap table{min-width:860px;font-size:12px;width:100%}
+.hist-wrap thead th{font-size:10px;font-weight:600;color:var(--text3);padding:7px 10px;border-bottom:1px solid var(--border);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;text-align:right;background:var(--bg)}
+.hist-wrap thead th:first-child{text-align:left;position:sticky;left:0;background:var(--bg);z-index:2;min-width:130px}
+.hist-wrap tbody tr{border-bottom:1px solid var(--border)}
+.hist-wrap tbody tr:hover{background:var(--bg2)}
+.hist-wrap tbody tr:last-child{border-bottom:none}
+.hist-wrap tbody tr.cur{background:var(--bg2)}
+.hist-wrap td{padding:8px 10px;text-align:right;font-family:var(--mono);font-size:12px;color:var(--text);white-space:nowrap}
+.hist-wrap td:first-child{text-align:left;font-family:var(--sans);font-weight:500;font-size:12px;color:var(--text);position:sticky;left:0;background:var(--bg);min-width:130px}
+.hist-wrap tr.cur td:first-child{background:var(--bg2)}
+.hist-wrap tr.month-start td{border-top:2px solid var(--border2)}
+.hcell{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500}
+.hcell.g{background:var(--green-bg);color:var(--green-text)}
+.hcell.a{background:var(--amber-bg);color:var(--amber-text)}
+.hcell.r{background:var(--red-bg);color:var(--red-text)}
+.hcell.n{color:var(--text3);font-family:var(--sans)}
+.footer{padding:1rem 1.75rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--bg2)}
+.footer-txt{font-size:11px;color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="card">
+  <div class="header">
+    <div class="header-left">
+      <span class="eyebrow">Cresium · Monitor de growth</span>
+      <span class="week-title" id="week-lbl">Semana del 16 mar 2026</span>
+    </div>
+    <div class="hright">
+      <label class="upload-btn">📂 Subir CSVs <input type="file" id="csv-in" multiple accept=".csv" style="display:none"></label>
+      <button class="btn on" id="bv" onclick="setMode('view')">Ver</button>
+      <button class="btn" id="be" onclick="setMode('edit')">Editar targets</button>
+    </div>
+  </div>
+  <div class="body">
+    <div class="qstrip">
+      <button class="qtab on" id="q1tab" onclick="setQ(1)">Q1 2026 (actual)</button>
+      <button class="qtab" id="q2tab" onclick="setQ(2)">Q2 2026</button>
+    </div>
+    <div class="strip" id="strip"></div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:32%">Métrica</th>
+          <th class="r" style="width:12%">Valor actual</th>
+          <th class="r" style="width:12%">Target</th>
+          <th class="r" style="width:11%">vs target</th>
+          <th class="r" style="width:11%">vs ant.</th>
+          <th style="width:22%">Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="footer">
+    <span class="footer-txt" id="fnote">Datos: CSVs Metabase · 23 mar 2026</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="hist-header">
+    <div class="hist-title">Histórico semanal</div>
+    <div class="hist-sub">Últimas 12 semanas · Colores según target Q1 · Scroll horizontal para ver todo</div>
+  </div>
+  <div class="hist-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Semana</th>
+          <th>WAU</th>
+          <th>Nuevos</th>
+          <th>Churned</th>
+          <th>Net</th>
+          <th>Tasa activ.</th>
+          <th>Leads</th>
+          <th>Churn mens.</th>
+          <th>CAC FB</th>
+          <th>CPA</th>
+        </tr>
+      </thead>
+      <tbody id="hist-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+<script>
+const DEFS=[
+  {id:'activos_total', name:'Clientes activos totales',       sub:'ARS ≥$100K y 1 tx en 30d · mensual',                val:143,   prev:null,   tq1:190, tq2:450, unit:'',  hb:true,  cat:'Activación'},
+  {id:'nuevos_act_sem',name:'Nuevos clientes activos/sem',    sub:'Clientes que cumplen condiciones por 1ra vez · semanal',val:4, prev:8,      tq1:12,  tq2:22,  unit:'',  hb:true,  cat:'Activación'},
+  {id:'tasa_act',      name:'Tasa de activación',             sub:'CVU con 1ra tx en 14d · semanal',                   val:22.2,  prev:50,     tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación'},
+  {id:'churn_men',     name:'Churn mensual',                  sub:'Clientes que dejan de cumplir condiciones · mensual',val:17.6,  prev:11.1,  tq1:5,   tq2:4,   unit:'%', hb:false, cat:'Retención'},
+  {id:'leads_sem',     name:'Leads/semana (total)',           sub:'Leads nuevos por canal · semanal',                  val:342,   prev:140,    tq1:60,  tq2:120, unit:'',  hb:true,  cat:'Adquisición'},
+  {id:'referidos_mes', name:'Referidos generados/mes',        sub:'Leads con origen "Referido" · mensual',             val:0,     prev:null,   tq1:10,  tq2:40,  unit:'',  hb:true,  cat:'Adquisición'},
+  {id:'cac',           name:'CAC por canal (FB Ads)',         sub:'Gasto / clientes nuevos atribuidos · mensual',      val:40.63, prev:137.04, tq1:100, tq2:80,  unit:'$', hb:false, cat:'Eficiencia'},
+  {id:'cpa',           name:'CPA (costo por cliente activo)', sub:'Spend Meta / nuevos activos en el mes · mensual',   val:27.09, prev:39.15,  tq1:80,  tq2:60,  unit:'$', hb:false, cat:'Eficiencia'},
+  {id:'contadores',    name:'Contadores activos en programa', sub:'Con al menos 1 cliente referido activo · mensual',  val:0,     prev:null,   tq1:3,   tq2:15,  unit:'',  hb:true,  cat:'Canal referidos'},
+];
+
+const HIST=[
+  {sem:'Dec 29, 2025', wau:86,  nuevos:null, churned:null, net:null, tasa:20,   leads:61,  churn:12.8, cac:921.14, cpa:null,  monthStart:false},
+  {sem:'Jan 5, 2026',  wau:91,  nuevos:11,   churned:-6,   net:5,    tasa:62.5, leads:113, churn:15.1, cac:309.88, cpa:32.06, monthStart:true },
+  {sem:'Jan 12, 2026', wau:93,  nuevos:5,    churned:-4,   net:2,    tasa:60,   leads:59,  churn:15.1, cac:309.88, cpa:32.06, monthStart:false},
+  {sem:'Jan 19, 2026', wau:97,  nuevos:7,    churned:-4,   net:4,    tasa:36.4, leads:60,  churn:15.1, cac:309.88, cpa:32.06, monthStart:false},
+  {sem:'Jan 26, 2026', wau:103, nuevos:6,    churned:0,    net:6,    tasa:33.3, leads:64,  churn:15.1, cac:309.88, cpa:32.06, monthStart:false},
+  {sem:'Feb 2, 2026',  wau:106, nuevos:3,    churned:-1,   net:3,    tasa:50,   leads:62,  churn:11.1, cac:137.04, cpa:39.15, monthStart:true },
+  {sem:'Feb 9, 2026',  wau:112, nuevos:11,   churned:-6,   net:6,    tasa:41.7, leads:133, churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
+  {sem:'Feb 16, 2026', wau:114, nuevos:3,    churned:-3,   net:2,    tasa:75,   leads:49,  churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
+  {sem:'Feb 23, 2026', wau:115, nuevos:4,    churned:-4,   net:1,    tasa:28.6, leads:95,  churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
+  {sem:'Mar 2, 2026',  wau:122, nuevos:6,    churned:-2,   net:7,    tasa:40,   leads:164, churn:17.6, cac:40.63,  cpa:27.09, monthStart:true },
+  {sem:'Mar 9, 2026',  wau:125, nuevos:8,    churned:-6,   net:3,    tasa:50,   leads:140, churn:17.6, cac:40.63,  cpa:27.09, monthStart:false},
+  {sem:'Mar 16, 2026', wau:125, nuevos:4,    churned:-6,   net:0,    tasa:22.2, leads:342, churn:17.6, cac:40.63,  cpa:27.09, monthStart:false},
+];
+
+const TGT={wau:140,nuevos:12,tasa:50,leads:60,churn:5,cac:100,cpa:80};
+
+let mode='view',q=1;
+const data=DEFS.map(d=>({...d}));
+
+function getT(d){return q===1?d.tq1:d.tq2;}
+function getSt(d){
+  if(d.val===null) return 'n';
+  const t=getT(d); if(t===null||t===undefined) return 'n';
+  if(t===0) return d.val===0?'g':'n';
+  const r=d.hb?d.val/t:t/d.val;
+  return r>=0.9?'g':r>=0.7?'a':'r';
+}
+function sLbl(s){return{g:'En objetivo',a:'En riesgo',r:'Fuera de objetivo',n:'Sin datos'}[s];}
+function fmtV(v,unit){
+  if(v===null) return null;
+  if(unit==='%') return v.toFixed(1)+'%';
+  if(unit==='$') return '$'+v.toFixed(2);
+  if(v>=1000) return v.toLocaleString('es-AR');
+  return String(v);
+}
+function fmtT(d){
+  const t=getT(d); if(t===null||t===undefined) return '—';
+  if(d.unit==='%') return (d.hb?'>':'<')+t+'%';
+  if(d.unit==='$') return '<$'+t;
+  return (d.hb?'>':'')+t;
+}
+function trInfo(d){
+  if(d.val===null||d.prev===null) return{text:'—',cls:'nt'};
+  const pct=((d.val-d.prev)/Math.abs(d.prev)*100).toFixed(1);
+  const n=parseFloat(pct);
+  return{text:(n>=0?'+':'')+pct+'%',cls:(d.hb?n>=0:n<=0)?'up':'dn'};
+}
+function vtInfo(d){
+  if(d.val===null) return{text:'—',cls:'nt'};
+  const t=getT(d); if(t===null||t===undefined) return{text:'—',cls:'nt'};
+  if(t===0&&d.val===0) return{text:'0%',cls:'up'};
+  if(t===0) return{text:'—',cls:'nt'};
+  const pct=d.hb?((d.val-t)/t*100).toFixed(1):((t-d.val)/t*100).toFixed(1);
+  const n=parseFloat(pct);
+  return{text:(n>=0?'+':'')+pct+'%',cls:n>=0?'up':n>=-20?'nt':'dn'};
+}
+function renderStrip(){
+  const c={g:0,a:0,r:0,n:0};
+  data.forEach(d=>c[getSt(d)]++);
+  let h='';
+  if(c.g) h+=`<span class="pill g"><span class="pd g"></span>${c.g} en objetivo</span>`;
+  if(c.a) h+=`<span class="pill a"><span class="pd a"></span>${c.a} en riesgo</span>`;
+  if(c.r) h+=`<span class="pill r"><span class="pd r"></span>${c.r} fuera de objetivo</span>`;
+  if(c.n) h+=`<span class="pill n"><span class="pd n"></span>${c.n} sin datos</span>`;
+  document.getElementById('strip').innerHTML=h;
+}
+const CATS=['Activación','Retención','Adquisición','Eficiencia','Canal referidos'];
+function renderTable(){
+  const tb=document.getElementById('tbody'); tb.innerHTML='';
+  CATS.forEach(cat=>{
+    const rows=data.filter(d=>d.cat===cat); if(!rows.length) return;
+    const div=document.createElement('tr'); div.className='divrow';
+    div.innerHTML=`<td colspan="6">${cat}</td>`; tb.appendChild(div);
+    rows.forEach(d=>{
+      const st=getSt(d),tr_=trInfo(d),vt=vtInfo(d),vf=fmtV(d.val,d.unit);
+      const tc=mode==='edit'
+        ?`<td class="num"><input class="et" type="number" value="${getT(d)??''}" data-id="${d.id}" data-q="${q}" onchange="updT(this)"></td>`
+        :`<td class="num muted">${fmtT(d)}</td>`;
+      const vc=vf!==null?`<td class="num">${vf}</td>`:`<td class="num"><span class="nd">—</span></td>`;
+      const row=document.createElement('tr');
+      row.innerHTML=`<td><div class="mn">${d.name}</div><div class="sub">${d.sub}</div></td>`+vc+tc+
+        `<td class="num"><span class="trend ${vt.cls}">${vt.text}</span></td>`+
+        `<td class="num"><span class="trend ${tr_.cls}">${tr_.text}</span></td>`+
+        `<td><span class="badge ${st}"><span class="bdot ${st}"></span>${sLbl(st)}</span></td>`;
+      tb.appendChild(row);
+    });
+  });
+  renderStrip();
+}
+function updT(inp){
+  const id=inp.dataset.id,qq=parseInt(inp.dataset.q),d=data.find(x=>x.id===id);
+  if(!d) return;
+  if(qq===1) d.tq1=parseFloat(inp.value)||null; else d.tq2=parseFloat(inp.value)||null;
+  renderTable();
+}
+function setMode(m){
+  mode=m;
+  document.getElementById('bv').classList.toggle('on',m==='view');
+  document.getElementById('be').classList.toggle('on',m==='edit');
+  renderTable();
+}
+function setQ(qq){
+  q=qq;
+  document.getElementById('q1tab').classList.toggle('on',qq===1);
+  document.getElementById('q2tab').classList.toggle('on',qq===2);
+  renderTable();
+}
+
+function hst(v,unit,tgt,hb){
+  if(v===null||v===undefined) return '<span class="hcell n">—</span>';
+  let cls='n';
+  if(tgt){const r=hb?v/tgt:tgt/v; cls=r>=0.9?'g':r>=0.7?'a':'r';}
+  let txt=unit==='%'?v.toFixed(1)+'%':unit==='$'?'$'+v.toFixed(2):String(v);
+  return `<span class="hcell ${cls}">${txt}</span>`;
+}
+function renderHist(){
+  const tb=document.getElementById('hist-tbody'); tb.innerHTML='';
+  const last=HIST[HIST.length-1].sem;
+  HIST.forEach(row=>{
+    const isCur=row.sem===last;
+    const tr=document.createElement('tr');
+    if(isCur) tr.className='cur';
+    if(row.monthStart) tr.classList.add('month-start');
+    const net=row.net!==null?(row.net>0?`<span style="color:var(--green-dot)">+${row.net}</span>`:row.net<0?`<span style="color:var(--red-dot)">${row.net}</span>`:'0'):'<span style="color:var(--text3)">—</span>';
+    const chd=row.churned!==null?`<span style="color:var(--red-dot)">${row.churned}</span>`:'<span style="color:var(--text3)">—</span>';
+    tr.innerHTML=
+      `<td>${row.sem}${isCur?' <span style="font-size:10px;color:var(--green-dot);font-weight:600">← actual</span>':''}</td>`+
+      `<td>${hst(row.wau,'',TGT.wau,true)}</td>`+
+      `<td>${hst(row.nuevos,'',TGT.nuevos,true)}</td>`+
+      `<td>${chd}</td>`+
+      `<td>${net}</td>`+
+      `<td>${hst(row.tasa,'%',TGT.tasa,true)}</td>`+
+      `<td>${hst(row.leads,'',TGT.leads,true)}</td>`+
+      `<td>${hst(row.churn,'%',TGT.churn,false)}</td>`+
+      `<td>${hst(row.cac,'$',TGT.cac,false)}</td>`+
+      `<td>${hst(row.cpa,'$',TGT.pca,false)}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+document.getElementById('csv-in').addEventListener('change',function(e){
+  const files=Array.from(e.target.files); let pending=files.length;
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      parseCSV(file.name,ev.target.result); pending--;
+      if(!pending){renderTable();renderHist();document.getElementById('fnote').textContent=files.length+' archivo(s) procesado(s) · '+new Date().toLocaleDateString('es-AR');}
+    };
+    reader.readAsText(file);
+  });
+});
+
+function parseCSV(name,text){
+  const rows=text.trim().split('\n').map(r=>r.split(',').map(c=>c.replace(/^"|"$/g,'').trim()));
+  const hdr=rows[0].map(h=>h.toLowerCase());
+  if(hdr.some(h=>h.includes('tasa activaci'))){
+    const s=rows.slice(1).sort((a,b)=>new Date(b[0])-new Date(a[0]));
+    if(s.length>=1){const dm=data.find(d=>d.id==='tasa_act');if(dm){dm.val=parseFloat(s[0][3])||dm.val;if(s.length>=2)dm.prev=parseFloat(s[1][3])||dm.prev;}}
+  }
+  if(hdr.some(h=>h.includes('churn rate'))){
+    const s=rows.slice(1).sort((a,b)=>new Date(b[0])-new Date(a[0]));
+    if(s.length>=1){const dm=data.find(d=>d.id==='churn_men');if(dm){dm.val=parseFloat(s[0][1])||dm.val;if(s.length>=2)dm.prev=parseFloat(s[1][1])||dm.prev;}}
+  }
+  if(hdr.includes('leads')&&hdr.includes('canal')){
+    const weeks={};
+    rows.slice(1).forEach(r=>{const wk=r[0],l=parseInt(r[2])||0;if(!weeks[wk])weeks[wk]=0;weeks[wk]+=l;});
+    const s=Object.keys(weeks).sort((a,b)=>new Date(b)-new Date(a));
+    if(s.length>=1){const dm=data.find(d=>d.id==='leads_sem');if(dm){dm.val=weeks[s[0]];if(s.length>=2)dm.prev=weeks[s[1]];}document.getElementById('week-lbl').textContent='Semana del '+s[0];}
+  }
+  if(hdr[0]==='clientes activos'&&rows.length===2){const dm=data.find(d=>d.id==='activos_total');if(dm)dm.val=parseInt(rows[1][0])||dm.val;}
+  if(hdr.includes('nuevos')&&hdr.includes('churned')&&hdr.includes('net')){
+    const s=rows.slice(1).sort((a,b)=>new Date(b[0])-new Date(a[0]));
+    const lat=s.find(r=>parseInt(r[1])>0||Math.abs(parseInt(r[3]))>0)||s[0];
+    if(lat){const idx=s.indexOf(lat);const dm=data.find(d=>d.id==='nuevos_act_sem');if(dm){dm.val=parseInt(lat[1])||0;if(s[idx+1])dm.prev=parseInt(s[idx+1][1])||null;}}
+  }
+  if(hdr.includes('cac $')){
+    const ci=hdr.indexOf('cac $'),lat=rows[1],prv=rows[2];
+    if(ci>-1){const dm=data.find(d=>d.id==='cac');if(dm){dm.val=parseFloat(lat[ci])||dm.val;if(prv)dm.prev=parseFloat(prv[ci])||dm.prev;}}
+  }
+}
+
+renderTable();
+renderHist();
+</script>
+</body>
+</html>
