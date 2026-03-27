@@ -77,6 +77,10 @@ td.muted{color:var(--text3)}
 input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;border:1px solid var(--border2);border-radius:4px;padding:4px 6px;background:var(--bg);color:var(--text)}
 .nd{font-family:var(--mono);font-size:12px;color:var(--text3)}
 .divrow td{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);background:var(--bg2);padding:5px 10px;border-bottom:1px solid var(--border)}
+.mn-wrap{position:relative;display:inline-block}
+.tip-icon{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bg3);color:var(--text3);font-size:9px;font-weight:700;text-align:center;line-height:14px;margin-left:5px;cursor:help;vertical-align:middle}
+.tooltip{display:none;position:absolute;left:0;top:100%;margin-top:6px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 12px;font-size:11px;line-height:1.5;color:var(--text);white-space:pre-line;min-width:260px;max-width:340px;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.12)}
+.mn-wrap:hover .tooltip{display:block}
 .hist-header{padding:1.25rem 1.75rem 0.75rem;border-bottom:1px solid var(--border)}
 .hist-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px}
 .hist-sub{font-size:11px;color:var(--text3)}
@@ -171,15 +175,15 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
 </div>
 <script>
 const DEFS=[
-  {id:'activos_total', name:'Clientes activos totales',       sub:'ARS ≥$100K y 1 tx en 30d · mensual',                val:142,   prev:143,    tq1:190, tq2:450, unit:'',  hb:true,  cat:'Activación',      lu:'2026-03-26'},
-  {id:'nuevos_act_sem',name:'Nuevos clientes activos/sem',    sub:'Clientes que cumplen condiciones por 1ra vez · semanal',val:1, prev:4,      tq1:12,  tq2:22,  unit:'',  hb:true,  cat:'Activación',      lu:'2026-03-23'},
-  {id:'tasa_act',      name:'Tasa de activación',             sub:'CVU con 1ra tx en 14d · semanal',                   val:0,     prev:22.2,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-23'},
-  {id:'churn_men',     name:'Churn mensual',                  sub:'Clientes que dejan de cumplir condiciones · mensual',val:16,    prev:11.1,   tq1:5,   tq2:4,   unit:'%', hb:false, cat:'Retención',       lu:'2026-03-26'},
-  {id:'leads_sem',     name:'Leads/semana (total)',           sub:'Leads nuevos por canal · semanal',                  val:342,   prev:140,    tq1:60,  tq2:120, unit:'',  hb:true,  cat:'Adquisición',     lu:'2026-03-16'},
-  {id:'referidos_mes', name:'Referidos generados/mes',        sub:'Leads con origen "Referido" · mensual',             val:0,     prev:null,   tq1:10,  tq2:40,  unit:'',  hb:true,  cat:'Adquisición',     lu:null},
-  {id:'cac',           name:'CAC por canal (FB Ads)',         sub:'Gasto / clientes nuevos atribuidos · mensual',      val:40.63, prev:137.04, tq1:100, tq2:80,  unit:'$', hb:false, cat:'Eficiencia',      lu:'2026-03-26'},
-  {id:'cpa',           name:'CPA (costo por cliente activo)', sub:'Spend Meta / nuevos activos en el mes · mensual',   val:27.09, prev:39.15,  tq1:80,  tq2:60,  unit:'$', hb:false, cat:'Eficiencia',      lu:'2026-03-16'},
-  {id:'contadores',    name:'Contadores activos en programa', sub:'Con al menos 1 cliente referido activo · mensual',  val:0,     prev:null,   tq1:3,   tq2:15,  unit:'',  hb:true,  cat:'Canal referidos', lu:null},
+  {id:'activos_total', name:'Clientes activos totales',       sub:'Rolling 30d · mensual',      tip:'Fórmula: saldo ≥ $100K ARS + al menos 1 tx en últimos 30d\nFuente: query s3 (Metabase)',                          val:142,   prev:143,    tq1:190, tq2:450, unit:'',  hb:true,  cat:'Activación',      lu:'2026-03-26'},
+  {id:'nuevos_act_sem',name:'Nuevos clientes activos/sem',    sub:'1ra vez activo · semanal',   tip:'Fórmula: clientes que cumplen condiciones de activo por primera vez esa semana\nFuente: query b4 (Metabase)',        val:1, prev:4,      tq1:12,  tq2:22,  unit:'',  hb:true,  cat:'Activación',      lu:'2026-03-23'},
+  {id:'tasa_act',      name:'Tasa de activación',             sub:'CVU → 1ra tx en ≤14d · semanal', tip:'Fórmula: CVUs nuevos esa semana que hicieron 1ra tx en ≤14 días / total CVUs nuevos\n⚠️ Pendiente: redefinir como onboardeados 30d con active_by_balance AND active_by_tx\nFuente: query b3 (Metabase)',       val:0,     prev:22.2,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-23'},
+  {id:'churn_men',     name:'Churn mensual',                  sub:'Dejaron de ser activos · mensual', tip:'Fórmula: clientes que dejaron de cumplir condiciones / activos mes anterior\nFuente: query s4 (Metabase)',    val:16,    prev:11.1,   tq1:5,   tq2:4,   unit:'%', hb:false, cat:'Retención',       lu:'2026-03-26'},
+  {id:'leads_sem',     name:'Leads/semana (total)',           sub:'Todos los canales · semanal', tip:'Fórmula: suma leads Paid + Inbound + Otros + Red esa semana\nFuente: query a1 (Metabase)',                         val:342,   prev:140,    tq1:60,  tq2:120, unit:'',  hb:true,  cat:'Adquisición',     lu:'2026-03-16'},
+  {id:'referidos_mes', name:'Referidos generados/mes',        sub:'Origen "Referido" · mensual', tip:'Fórmula: leads con origen "Referido" en el mes\nFuente: sin query configurada',                                    val:0,     prev:null,   tq1:10,  tq2:40,  unit:'',  hb:true,  cat:'Adquisición',     lu:null},
+  {id:'cac',           name:'CAC por canal (FB Ads)',         sub:'Spend / nuevos clientes · mensual', tip:'Fórmula: gasto FB Ads del mes / clientes nuevos atribuidos a FB Ads\nFuente: CSV Facebook Ads',              val:40.63, prev:137.04, tq1:100, tq2:80,  unit:'$', hb:false, cat:'Eficiencia',      lu:'2026-03-26'},
+  {id:'cpa',           name:'CPA (costo por cliente activo)', sub:'Spend / nuevos activos · mensual', tip:'Fórmula: spend total Meta del mes / nuevos clientes activos en el mes\nFuente: CSV Facebook Ads',             val:27.09, prev:39.15,  tq1:80,  tq2:60,  unit:'$', hb:false, cat:'Eficiencia',      lu:'2026-03-16'},
+  {id:'contadores',    name:'Contadores activos en programa', sub:'≥1 referido activo · mensual', tip:'Fórmula: contadores con al menos 1 cliente referido activo\nFuente: sin query configurada',                      val:0,     prev:null,   tq1:3,   tq2:15,  unit:'',  hb:true,  cat:'Canal referidos', lu:null},
 ];
 
 const HIST=[
@@ -273,7 +277,8 @@ function renderTable(){
         :`<td class="num muted">${fmtT(d)}</td>`;
       const vc=vf!==null?`<td class="num">${vf}</td>`:`<td class="num"><span class="nd">—</span></td>`;
       const row=document.createElement('tr');
-      row.innerHTML=`<td><div class="mn">${d.name}</div><div class="sub">${d.sub}</div></td>`+vc+tc+
+      const tipHtml=d.tip?`<span class="mn-wrap"><span class="tip-icon">?</span><span class="tooltip">${d.tip}</span></span>`:'';
+      row.innerHTML=`<td><div class="mn">${d.name}${tipHtml}</div><div class="sub">${d.sub}</div></td>`+vc+tc+
         `<td class="num"><span class="trend ${vt.cls}">${vt.text}</span></td>`+
         `<td class="num"><span class="trend ${tr_.cls}">${tr_.text}</span></td>`+
         `<td><span class="badge ${st}"><span class="bdot ${st}"></span>${sLbl(st)}</span></td>`+
