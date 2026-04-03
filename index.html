@@ -170,11 +170,9 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
           <th>Nuevos</th>
           <th>Churned</th>
           <th>Net</th>
-          <th>Tasa activ.</th>
+          <th>Act. temp.</th>
           <th>Leads</th>
-          <th>Churn mens.</th>
-          <th>CAC FB</th>
-          <th>CPA</th>
+          <th>Churn 30d</th>
         </tr>
       </thead>
       <tbody id="hist-tbody"></tbody>
@@ -205,21 +203,21 @@ const DEFS=[
 ];
 
 const HIST=[
-  {sem:'Jan 12, 2026', wau:93,  nuevos:5,    churned:-4,   net:2,    tasa:60.0, leads:59,  churn:15.1, cac:309.88, cpa:32.06, monthStart:true},
-  {sem:'Jan 19, 2026', wau:97,  nuevos:7,    churned:-4,   net:4,    tasa:36.4, leads:60,  churn:15.1, cac:309.88, cpa:32.06, monthStart:false},
-  {sem:'Jan 26, 2026', wau:103, nuevos:6,    churned:0,    net:6,    tasa:33.3, leads:64,  churn:15.1, cac:309.88, cpa:32.06, monthStart:false},
-  {sem:'Feb 2, 2026',  wau:112, nuevos:3,    churned:-1,   net:3,    tasa:50.0, leads:62,  churn:11.1, cac:137.04, cpa:39.15, monthStart:true },
-  {sem:'Feb 9, 2026',  wau:119, nuevos:11,   churned:-6,   net:6,    tasa:41.7, leads:133, churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
-  {sem:'Feb 16, 2026', wau:120, nuevos:3,    churned:-3,   net:2,    tasa:75.0, leads:49,  churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
-  {sem:'Feb 23, 2026', wau:122, nuevos:4,    churned:-4,   net:1,    tasa:28.6, leads:95,  churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
-  {sem:'Mar 2, 2026',  wau:129, nuevos:6,    churned:-2,   net:7,    tasa:40.0, leads:164, churn:15.2, cac:56.61,  cpa:43.13, monthStart:true },
-  {sem:'Mar 9, 2026',  wau:131, nuevos:8,    churned:-6,   net:3,    tasa:50.0, leads:140, churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
-  {sem:'Mar 16, 2026', wau:132, nuevos:4,    churned:-6,   net:0,    tasa:22.2, leads:386, churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
-  {sem:'Mar 23, 2026', wau:143, nuevos:4,    churned:-7,   net:-2,   tasa:20.0, leads:96,  churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
-  {sem:'Mar 30, 2026', wau:148, nuevos:6,    churned:-5,   net:6,    tasa:18.2, leads:90,  churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
+  {sem:'Jan 12, 2026', wau:98,  nuevos:5,  churned:0,    net:5,  act:50.0, leads:59,  churn:9.4,  monthStart:true },
+  {sem:'Jan 19, 2026', wau:102, nuevos:6,  churned:-2,   net:4,  act:42.9, leads:60,  churn:12.1, monthStart:false},
+  {sem:'Jan 26, 2026', wau:108, nuevos:4,  churned:2,    net:6,  act:53.8, leads:64,  churn:13.0, monthStart:false},
+  {sem:'Feb 2, 2026',  wau:112, nuevos:3,  churned:1,    net:4,  act:61.5, leads:62,  churn:10.3, monthStart:true },
+  {sem:'Feb 9, 2026',  wau:126, nuevos:10, churned:4,    net:14, act:43.8, leads:133, churn:5.8,  monthStart:false},
+  {sem:'Feb 16, 2026', wau:130, nuevos:1,  churned:3,    net:4,  act:40.0, leads:49,  churn:6.6,  monthStart:false},
+  {sem:'Feb 23, 2026', wau:133, nuevos:3,  churned:0,    net:3,  act:58.8, leads:95,  churn:3.7,  monthStart:false},
+  {sem:'Mar 2, 2026',  wau:139, nuevos:6,  churned:0,    net:6,  act:65.0, leads:164, churn:6.1,  monthStart:true },
+  {sem:'Mar 9, 2026',  wau:142, nuevos:8,  churned:-5,   net:3,  act:68.8, leads:140, churn:5.9,  monthStart:false},
+  {sem:'Mar 16, 2026', wau:143, nuevos:4,  churned:-3,   net:1,  act:54.5, leads:386, churn:7.8,  monthStart:false},
+  {sem:'Mar 23, 2026', wau:143, nuevos:3,  churned:-3,   net:0,  act:33.3, leads:155, churn:8.5,  monthStart:false},
+  {sem:'Mar 30, 2026', wau:146, nuevos:6,  churned:-3,   net:3,  act:47.4, leads:90,  churn:11.2, monthStart:false},
 ];
 
-const TGT={wau:140,nuevos:12,tasa:50,leads:60,churn:5,cac:100,cpa:80};
+const TGT={wau:140,nuevos:12,act:50,leads:60,churn:5};
 
 let mode='view',q=1;
 const data=DEFS.map(d=>({...d}));
@@ -348,11 +346,9 @@ function renderHist(){
       `<td>${hst(row.nuevos,'',TGT.nuevos,true)}</td>`+
       `<td>${chd}</td>`+
       `<td>${net}</td>`+
-      `<td>${hst(row.tasa,'%',TGT.tasa,true)}</td>`+
+      `<td>${hst(row.act,'%',TGT.act,true)}</td>`+
       `<td>${hst(row.leads,'',TGT.leads,true)}</td>`+
-      `<td>${hst(row.churn,'%',TGT.churn,false)}</td>`+
-      `<td>${hst(row.cac,'$',TGT.cac,false)}</td>`+
-      `<td>${hst(row.cpa,'$',TGT.pca,false)}</td>`;
+      `<td>${hst(row.churn,'%',TGT.churn,false)}</td>`;
     tb.appendChild(tr);
   });
 }
