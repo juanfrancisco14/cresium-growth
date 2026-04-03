@@ -1,5 +1,5 @@
 name: Churn Alert Diario
-  on:
+on:
     schedule:
       - cron: '0 12 * * 1-5'
     workflow_dispatch:
