@@ -15,8 +15,8 @@ jobs:
           python3 -c "
           import json, urllib.request, os
           from datetime import date
-          MB_KEY = os.environ['METABASE_API_KEY']
-          SLACK_URL = os.environ['SLACK_WEBHOOK_URL']
+          MB_KEY = os.environ['METABASE_API_KEY'].strip()
+          SLACK_URL = os.environ['SLACK_WEBHOOK_URL'].strip()
           MB_URL = 'https://data.cresium.com/api/dataset'
           def mb_query(sql):
               body = json.dumps({'database': 2, 'type': 'native', 'native': {'query': sql}}).encode()
