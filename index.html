@@ -112,7 +112,7 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
   <div class="header">
     <div class="header-left">
       <span class="eyebrow">Cresium · Monitor de growth</span>
-      <span class="week-title" id="week-lbl">Semana del 23 mar 2026</span>
+      <span class="week-title" id="week-lbl">Semana del 30 mar 2026</span>
     </div>
     <div class="hright">
       <label class="upload-btn">📂 Subir CSVs <input type="file" id="csv-in" multiple accept=".csv" style="display:none"></label>
@@ -142,7 +142,7 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
     </table>
   </div>
   <div class="footer">
-    <span class="footer-txt" id="fnote">Datos: Metabase API · 28 mar 2026</span>
+    <span class="footer-txt" id="fnote">Datos: Metabase API · 3 abr 2026</span>
   </div>
 </div>
 
@@ -175,32 +175,32 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
 </div>
 <script>
 const DEFS=[
-  {id:'activos_total', name:'Clientes activos totales',       sub:'Rolling 30d · mensual',      tip:'Fórmula: saldo ≥ $100K ARS + al menos 1 tx en últimos 30d\nFuente: query s3 (Metabase)',                          val:143,   prev:132,    tq1:190, tq2:450, unit:'',  hb:true,  cat:'Activación',      lu:'2026-03-28'},
-  {id:'nuevos_act_sem',name:'Nuevos clientes activos/sem',    sub:'1ra vez activo · semanal',   tip:'Fórmula: clientes que cumplen condiciones de activo por primera vez esa semana\nFuente: query b4 (Metabase)',        val:4,     prev:4,      tq1:12,  tq2:22,  unit:'',  hb:true,  cat:'Activación',      lu:'2026-03-23'},
-  {id:'tasa_act',      name:'Tasa de activación',             sub:'CVU → 1ra tx en ≤14d · semanal', tip:'Fórmula: CVUs nuevos esa semana que hicieron 1ra tx en ≤14 días / total CVUs nuevos\n⚠️ Pendiente: redefinir como onboardeados 30d con active_by_balance AND active_by_tx\nFuente: query b3 (Metabase)',       val:20.0,  prev:22.2,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-23'},
-  {id:'tasa_act_temp', name:'Activación temprana (15d)',       sub:'Cohorte 30-15d atrás · tx en ≤15d', tip:'Fórmula: empresas con CVU creado entre 30 y 15 días atrás que hicieron 1ra tx en ≤15d / total cohorte\nFuente: query 839 (Metabase)', val:33.3,  prev:45.5,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-23'},
-  {id:'churn_men',     name:'Churn mensual',                  sub:'Dejaron de ser activos · mensual', tip:'Fórmula: clientes que dejaron de cumplir condiciones / activos mes anterior\nFuente: query s4 (Metabase)',    val:16.0,  prev:11.1,   tq1:5,   tq2:4,   unit:'%', hb:false, cat:'Retención',       lu:'2026-03-28'},
-  {id:'leads_sem',     name:'Leads/semana (total)',           sub:'Todos los canales · semanal', tip:'Fórmula: suma leads Paid + Inbound + Otros + Red esa semana\nFuente: query a1 (Metabase)',                         val:96,    prev:386,    tq1:60,  tq2:120, unit:'',  hb:true,  cat:'Adquisición',     lu:'2026-03-23'},
+  {id:'activos_total', name:'Clientes activos totales',       sub:'Rolling 30d · mensual',      tip:'Fórmula: saldo ≥ $100K ARS + al menos 1 tx en últimos 30d\nFuente: query s3 (Metabase)',                          val:147,   prev:130,    tq1:190, tq2:450, unit:'',  hb:true,  cat:'Activación',      lu:'2026-04-03'},
+  {id:'nuevos_act_sem',name:'Nuevos clientes activos/sem',    sub:'1ra vez activo · semanal',   tip:'Fórmula: clientes que cumplen condiciones de activo por primera vez esa semana\nFuente: query b4 (Metabase)',        val:6,     prev:3,      tq1:12,  tq2:22,  unit:'',  hb:true,  cat:'Activación',      lu:'2026-03-30'},
+  {id:'tasa_act',      name:'Tasa de activación',             sub:'CVU → 1ra tx en ≤14d · semanal', tip:'Fórmula: CVUs nuevos esa semana que hicieron 1ra tx en ≤14 días / total CVUs nuevos\n⚠️ Pendiente: redefinir como onboardeados 30d con active_by_balance AND active_by_tx\nFuente: query b3 (Metabase)',       val:18.2,  prev:40.0,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-30'},
+  {id:'tasa_act_temp', name:'Activación temprana (15d)',       sub:'Cohorte 30-15d atrás · tx en ≤15d', tip:'Fórmula: empresas con CVU creado entre 30 y 15 días atrás que hicieron 1ra tx en ≤15d / total cohorte\nFuente: query 839 (Metabase)', val:47.4,  prev:33.3,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-30'},
+  {id:'churn_men',     name:'Churn mensual',                  sub:'Dejaron de ser activos · mensual', tip:'Fórmula: clientes que dejaron de cumplir condiciones / activos mes anterior\nFuente: query s4 (Metabase)',    val:15.2,  prev:11.1,   tq1:5,   tq2:4,   unit:'%', hb:false, cat:'Retención',       lu:'2026-04-03'},
+  {id:'leads_sem',     name:'Leads/semana (total)',           sub:'Todos los canales · semanal', tip:'Fórmula: suma leads Paid + Inbound + Otros + Red esa semana\nFuente: query a1 (Metabase)',                         val:90,    prev:155,    tq1:60,  tq2:120, unit:'',  hb:true,  cat:'Adquisición',     lu:'2026-03-30'},
   {id:'leads_meta',    name:'Leads Meta/semana',              sub:'Facebook + Instagram Ads · lun→dom', tip:'Fórmula: suma conversiones diarias Meta Ads por semana (lun→dom)\n⚠️ Semana actual puede estar incompleta\nFuente: tabla meta_ads_weekly (Metabase, DB internalmetrics)', val:52, prev:107, tq1:null, tq2:null, unit:'', hb:true, cat:'Adquisición', lu:'2026-03-27'},
   {id:'referidos_mes', name:'Referidos generados/mes',        sub:'Origen "Referido" · mensual', tip:'Fórmula: leads con origen "Referido" en el mes\nFuente: sin query configurada',                                    val:0,     prev:null,   tq1:10,  tq2:40,  unit:'',  hb:true,  cat:'Adquisición',     lu:null},
-  {id:'cac',           name:'CAC por canal (FB Ads)',         sub:'Spend / nuevos clientes · mensual', tip:'Fórmula: gasto FB Ads del mes / clientes nuevos atribuidos a FB Ads\nFuente: CSV Facebook Ads',              val:40.63, prev:137.04, tq1:100, tq2:80,  unit:'$', hb:false, cat:'Eficiencia',      lu:'2026-03-26'},
-  {id:'cpa',           name:'CPA (costo por cliente activo)', sub:'Spend / nuevos activos · mensual', tip:'Fórmula: spend total Meta del mes / nuevos clientes activos en el mes\nFuente: CSV Facebook Ads',             val:27.09, prev:39.15,  tq1:80,  tq2:60,  unit:'$', hb:false, cat:'Eficiencia',      lu:'2026-03-16'},
+  {id:'cac',           name:'CAC por canal (FB Ads)',         sub:'Spend / nuevos clientes · mensual', tip:'Fórmula: gasto FB Ads del mes / clientes nuevos atribuidos a FB Ads\nFuente: CSV Facebook Ads',              val:56.61, prev:137.04, tq1:100, tq2:80,  unit:'$', hb:false, cat:'Eficiencia',      lu:'2026-04-03'},
+  {id:'cpa',           name:'CPA (costo por cliente activo)', sub:'Spend / nuevos activos · mensual', tip:'Fórmula: spend total Meta del mes / nuevos clientes activos en el mes\nFuente: CSV Facebook Ads',             val:43.13, prev:39.15,  tq1:80,  tq2:60,  unit:'$', hb:false, cat:'Eficiencia',      lu:'2026-04-03'},
   {id:'contadores',    name:'Contadores activos en programa', sub:'≥1 referido activo · mensual', tip:'Fórmula: contadores con al menos 1 cliente referido activo\nFuente: sin query configurada',                      val:0,     prev:null,   tq1:3,   tq2:15,  unit:'',  hb:true,  cat:'Canal referidos', lu:null},
 ];
 
 const HIST=[
-  {sem:'Jan 5, 2026',  wau:91,  nuevos:11,   churned:-6,   net:5,    tasa:62.5, leads:113, churn:15.1, cac:309.88, cpa:32.06, monthStart:true },
-  {sem:'Jan 12, 2026', wau:93,  nuevos:5,    churned:-4,   net:2,    tasa:60.0, leads:59,  churn:15.1, cac:309.88, cpa:32.06, monthStart:false},
+  {sem:'Jan 12, 2026', wau:93,  nuevos:5,    churned:-4,   net:2,    tasa:60.0, leads:59,  churn:15.1, cac:309.88, cpa:32.06, monthStart:true},
   {sem:'Jan 19, 2026', wau:97,  nuevos:7,    churned:-4,   net:4,    tasa:36.4, leads:60,  churn:15.1, cac:309.88, cpa:32.06, monthStart:false},
   {sem:'Jan 26, 2026', wau:103, nuevos:6,    churned:0,    net:6,    tasa:33.3, leads:64,  churn:15.1, cac:309.88, cpa:32.06, monthStart:false},
   {sem:'Feb 2, 2026',  wau:112, nuevos:3,    churned:-1,   net:3,    tasa:50.0, leads:62,  churn:11.1, cac:137.04, cpa:39.15, monthStart:true },
   {sem:'Feb 9, 2026',  wau:119, nuevos:11,   churned:-6,   net:6,    tasa:41.7, leads:133, churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
   {sem:'Feb 16, 2026', wau:120, nuevos:3,    churned:-3,   net:2,    tasa:75.0, leads:49,  churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
   {sem:'Feb 23, 2026', wau:122, nuevos:4,    churned:-4,   net:1,    tasa:28.6, leads:95,  churn:11.1, cac:137.04, cpa:39.15, monthStart:false},
-  {sem:'Mar 2, 2026',  wau:129, nuevos:6,    churned:-2,   net:7,    tasa:40.0, leads:164, churn:16.0, cac:40.63,  cpa:27.09, monthStart:true },
-  {sem:'Mar 9, 2026',  wau:131, nuevos:8,    churned:-6,   net:3,    tasa:50.0, leads:140, churn:16.0, cac:40.63,  cpa:27.09, monthStart:false},
-  {sem:'Mar 16, 2026', wau:132, nuevos:4,    churned:-6,   net:0,    tasa:22.2, leads:386, churn:16.0, cac:40.63,  cpa:27.09, monthStart:false},
-  {sem:'Mar 23, 2026', wau:143, nuevos:4,    churned:-7,   net:-2,   tasa:20.0, leads:96,  churn:16.0, cac:40.63,  cpa:27.09, monthStart:false},
+  {sem:'Mar 2, 2026',  wau:129, nuevos:6,    churned:-2,   net:7,    tasa:40.0, leads:164, churn:15.2, cac:56.61,  cpa:43.13, monthStart:true },
+  {sem:'Mar 9, 2026',  wau:131, nuevos:8,    churned:-6,   net:3,    tasa:50.0, leads:140, churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
+  {sem:'Mar 16, 2026', wau:132, nuevos:4,    churned:-6,   net:0,    tasa:22.2, leads:386, churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
+  {sem:'Mar 23, 2026', wau:143, nuevos:4,    churned:-7,   net:-2,   tasa:20.0, leads:96,  churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
+  {sem:'Mar 30, 2026', wau:147, nuevos:6,    churned:-5,   net:17,   tasa:18.2, leads:90,  churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
 ];
 
 const TGT={wau:140,nuevos:12,tasa:50,leads:60,churn:5,cac:100,cpa:80};
