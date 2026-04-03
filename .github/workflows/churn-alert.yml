@@ -1,10 +1,8 @@
- name: Churn Alert Diario
-
+name: Churn Alert Diario
   on:
     schedule:
-      - cron: '0 12 * * 1-5'  # 9am Argentina (UTC-3), lunes a viernes
-    workflow_dispatch:          # permite correrlo manualmente
-
+      - cron: '0 12 * * 1-5'
+    workflow_dispatch:
   jobs:
     churn-alert:
       runs-on: ubuntu-latest
@@ -17,23 +15,18 @@
             python3 << 'SCRIPT'
             import json, urllib.request, os
             from datetime import date
-
             MB_KEY = os.environ["METABASE_API_KEY"]
             SLACK_URL = os.environ["SLACK_WEBHOOK_URL"]
             MB_URL = "https://data.cresium.com/api/dataset"
-
             def mb_query(sql):
                 body = json.dumps({"database": 2, "type": "native", "native": {"query": sql}}).encode()
                 req = urllib.request.Request(MB_URL, data=body, headers={"x-api-key": MB_KEY, "Content-Type": "application/json"})
                 with urllib.request.urlopen(req, timeout=60) as resp:
                     return json.loads(resp.read())["data"]["rows"]
-
             def slack_send(text):
                 body = json.dumps({"text": text}).encode()
                 req = urllib.request.Request(SLACK_URL, data=body, headers={"Content-Type": "application/json"})
                 urllib.request.urlopen(req, timeout=10)
-
-            # --- Query 1: Nuevos churns hoy ---
             churn_sql = """
             WITH company_has_registered AS (
                 SELECT DISTINCT "companyId" FROM "Collaborators" WHERE status = 'REGISTERED'
@@ -61,8 +54,7 @@
                 WHERE NOT EXISTS (
                     SELECT 1 FROM active_all a2
                     WHERE a2."companyId" = t30."companyId"
-                      AND a2.active_date BETWEEN CURRENT_DATE - INTERVAL '30 days' AND CURRENT_DATE
-                )
+                      AND a2.active_date BETWEEN CURRENT_DATE - INTERVAL '30 days' AND CURRENT_DATE)
             ),
             churned_yesterday AS (
                 SELECT t30."companyId"
@@ -73,8 +65,7 @@
                     SELECT 1 FROM active_all a2
                     WHERE a2."companyId" = t30."companyId"
                       AND a2.active_date BETWEEN CURRENT_DATE - INTERVAL '31 days'
-                                             AND CURRENT_DATE - INTERVAL '1 day'
-                )
+                                             AND CURRENT_DATE - INTERVAL '1 day')
             )
             SELECT c.name, MAX(a.active_date), CURRENT_DATE - MAX(a.active_date)
             FROM churned_today ct
@@ -82,11 +73,8 @@
             LEFT JOIN active_all a ON ct."companyId" = a."companyId"
             WHERE ct."companyId" NOT IN (SELECT "companyId" FROM churned_yesterday)
               AND c."deletedAt" IS NULL
-            GROUP BY c.name
-            ORDER BY 2 DESC
+            GROUP BY c.name ORDER BY 2 DESC
             """
-
-            # --- Query 2: En riesgo de churn (t+10) ---
             risk_sql = """
             WITH company_has_registered AS (
                 SELECT DISTINCT "companyId" FROM "Collaborators" WHERE status = 'REGISTERED'
@@ -103,8 +91,7 @@
             ),
             has_balance AS (
                 SELECT DISTINCT w."companyId"
-                FROM "Wallets" w
-                JOIN "Currencies" cur ON w."currencyId" = cur.id
+                FROM "Wallets" w JOIN "Currencies" cur ON w."currencyId" = cur.id
                 WHERE w.balance >= 100000 AND cur.code = 'ARS'
             ),
             last_tx AS (
@@ -116,8 +103,7 @@
                 GROUP BY 1
             ),
             active_by_tx AS (
-                SELECT lt."companyId", lt.last_tx_date
-                FROM last_tx lt
+                SELECT lt."companyId", lt.last_tx_date FROM last_tx lt
                 WHERE lt.last_tx_date >= NOW() - INTERVAL '30 days'
             )
             SELECT c.name, atx.last_tx_date::date,
@@ -131,24 +117,17 @@
             LEFT JOIN (SELECT w."companyId", SUM(w.balance) AS saldo
                        FROM "Wallets" w JOIN "Currencies" cur ON w."currencyId" = cur.id
                        WHERE cur.code = 'ARS' GROUP BY 1) w_sum ON atx."companyId" = w_sum."companyId"
-            WHERE cs.segment = 'Cresium'
-              AND hb."companyId" IS NULL
+            WHERE cs.segment = 'Cresium' AND hb."companyId" IS NULL
               AND (CURRENT_DATE - atx.last_tx_date::date) >= 20
               AND c."deletedAt" IS NULL
             ORDER BY 4 ASC
             """
-
             meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
             hoy = date.today()
             fecha = f"{hoy.day} {meses[hoy.month-1]} {hoy.year}"
-
-            # Run queries
             churned = mb_query(churn_sql)
             at_risk = mb_query(risk_sql)
-
-            # Build message
             msg = ""
-
             if churned:
                 msg += f":red_circle: *Alerta de Churn — {fecha}*\n\n"
                 msg += f"{len(churned)} cliente(s) dejaron de estar activos hoy:\n\n"
@@ -157,9 +136,7 @@
                     msg += f"• *{r[0]}* — última actividad: {d} ({r[2]}d inactivo)\n"
             else:
                 msg += f":white_check_mark: *Churn — {fecha}*: sin nuevos churns hoy.\n"
-
             msg += f"\n:warning: *En riesgo de churn (próximos 10d)*\n\n"
-
             if at_risk:
                 for r in at_risk:
                     d = r[1][:10] if r[1] else "?"
@@ -167,9 +144,10 @@
                     msg += f"• *{r[0]}* — {r[3]}d para churn · última TX: {d} · saldo: ${saldo}\n"
             else:
                 msg += "Ningún cliente en riesgo.\n"
-
             msg += "\n_Criterio churn: activo en t-60→t-30 pero sin actividad en últimos 30d_\n"
             msg += "_Criterio riesgo: sin saldo ≥ 100K ARS y última TX hace 20-30d_"
-
             slack_send(msg)
             print(f"Sent alert: {len(churned)} churns, {len(at_risk)} at risk")
+            SCRIPT
+
+  4. Commit changes
