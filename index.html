@@ -175,7 +175,7 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
 </div>
 <script>
 const DEFS=[
-  {id:'activos_total', name:'Clientes activos totales',       sub:'Rolling 30d · mensual',      tip:'Fórmula: saldo ≥ $100K ARS + al menos 1 tx en últimos 30d\nFuente: query s3 (Metabase)',                          val:147,   prev:130,    tq1:190, tq2:450, unit:'',  hb:true,  cat:'Activación',      lu:'2026-04-03'},
+  {id:'activos_total', name:'Clientes activos totales',       sub:'Rolling 30d · mensual',      tip:'Fórmula: saldo ≥ $100K ARS + al menos 1 tx en últimos 30d\nFuente: card 783 (Metabase)',                          val:148,   prev:142,    tq1:190, tq2:450, unit:'',  hb:true,  cat:'Activación',      lu:'2026-04-03'},
   {id:'nuevos_act_sem',name:'Nuevos clientes activos/sem',    sub:'1ra vez activo · semanal',   tip:'Fórmula: clientes que cumplen condiciones de activo por primera vez esa semana\nFuente: query b4 (Metabase)',        val:6,     prev:3,      tq1:12,  tq2:22,  unit:'',  hb:true,  cat:'Activación',      lu:'2026-03-30'},
   {id:'tasa_act',      name:'Tasa de activación',             sub:'CVU → 1ra tx en ≤14d · semanal', tip:'Fórmula: CVUs nuevos esa semana que hicieron 1ra tx en ≤14 días / total CVUs nuevos\n⚠️ Pendiente: redefinir como onboardeados 30d con active_by_balance AND active_by_tx\nFuente: query b3 (Metabase)',       val:18.2,  prev:40.0,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-30'},
   {id:'tasa_act_temp', name:'Activación temprana (15d)',       sub:'Cohorte 30-15d atrás · tx en ≤15d', tip:'Fórmula: empresas con CVU creado entre 30 y 15 días atrás que hicieron 1ra tx en ≤15d / total cohorte\nFuente: query 839 (Metabase)', val:47.4,  prev:33.3,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-30'},
@@ -200,7 +200,7 @@ const HIST=[
   {sem:'Mar 9, 2026',  wau:131, nuevos:8,    churned:-6,   net:3,    tasa:50.0, leads:140, churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
   {sem:'Mar 16, 2026', wau:132, nuevos:4,    churned:-6,   net:0,    tasa:22.2, leads:386, churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
   {sem:'Mar 23, 2026', wau:143, nuevos:4,    churned:-7,   net:-2,   tasa:20.0, leads:96,  churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
-  {sem:'Mar 30, 2026', wau:147, nuevos:6,    churned:-5,   net:17,   tasa:18.2, leads:90,  churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
+  {sem:'Mar 30, 2026', wau:148, nuevos:6,    churned:-5,   net:6,    tasa:18.2, leads:90,  churn:15.2, cac:56.61,  cpa:43.13, monthStart:false},
 ];
 
 const TGT={wau:140,nuevos:12,tasa:50,leads:60,churn:5,cac:100,cpa:80};
