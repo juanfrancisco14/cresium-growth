@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="visibility:hidden">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -106,6 +106,20 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
 </style>
 </head>
 <body>
+<script>
+(function(){
+  var h='8a9f3d2b1c4e5f6a7b8c9d0e1f2a3b4c';
+  function sha(s){return Array.from(new Uint8Array(new TextEncoder().encode(s))).reduce(function(a,b){a=((a<<5)-a)+b;return a&a},0).toString(16)}
+  var k='lucaprodan';
+  var stored=sessionStorage.getItem('_auth');
+  if(stored===k){document.documentElement.style.visibility='visible'}
+  else{
+    var p=prompt('Contraseña:');
+    if(p===k){sessionStorage.setItem('_auth',k);document.documentElement.style.visibility='visible'}
+    else{document.body.innerHTML='<p style="text-align:center;margin-top:40vh;font-family:sans-serif;color:#999">Acceso denegado</p>';document.documentElement.style.visibility='visible'}
+  }
+})();
+</script>
 <div class="container">
 
 <div class="card">
