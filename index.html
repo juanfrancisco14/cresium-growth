@@ -171,8 +171,19 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
           <th>Churned</th>
           <th>Net</th>
           <th>Act. temp.</th>
-          <th>Leads</th>
           <th>Churn 30d</th>
+          <th>Leads</th>
+          <th>FB</th>
+          <th>Inb. WEB</th>
+          <th>Retool</th>
+          <th>Sin dato</th>
+          <th>LI Ads</th>
+          <th>IG</th>
+          <th>OB Mail</th>
+          <th>Ref</th>
+          <th>Otros</th>
+          <th>CAC</th>
+          <th>Cont.</th>
         </tr>
       </thead>
       <tbody id="hist-tbody"></tbody>
@@ -185,7 +196,6 @@ input.et{width:75px;font-family:var(--mono);font-size:12px;text-align:right;bord
 const DEFS=[
   {id:'activos_total', name:'Clientes activos totales',       sub:'Rolling 30d · mensual',      tip:'Fórmula: saldo ≥ $100K ARS + al menos 1 tx en últimos 30d\nFuente: card 783 (Metabase)',                          val:148,   prev:142,    tq1:190, tq2:450, unit:'',  hb:true,  cat:'Activación',      lu:'2026-04-03'},
   {id:'nuevos_act_sem',name:'Nuevos clientes activos (7d)',    sub:'1ra activación · rolling 7d', tip:'Fórmula: empresas Cresium cuya 1ra activación cayó en últimos 7 días\nActivación = 1ra vez con saldo ≥ 100K ARS ó 1ra TX exitosa (OR)\nFuente: Cresium DB (WalletSnapshots + Transactions)',  val:7,     prev:4,      tq1:12,  tq2:22,  unit:'',  hb:true,  cat:'Activación',      lu:'2026-04-03'},
-  {id:'tasa_act',      name:'Tasa de activación',             sub:'CVU → 1ra tx en ≤14d · semanal', tip:'Fórmula: CVUs nuevos esa semana que hicieron 1ra tx en ≤14 días / total CVUs nuevos\n⚠️ Pendiente: redefinir como onboardeados 30d con active_by_balance AND active_by_tx\nFuente: query b3 (Metabase)',       val:18.2,  prev:40.0,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-30'},
   {id:'tasa_act_temp', name:'Activación temprana (15d)',       sub:'Cohorte 30-15d atrás · tx en ≤15d', tip:'Fórmula: empresas con CVU creado entre 30 y 15 días atrás que hicieron 1ra tx en ≤15d / total cohorte\nFuente: query 839 (Metabase)', val:47.4,  prev:33.3,   tq1:50,  tq2:60,  unit:'%', hb:true,  cat:'Activación',      lu:'2026-03-30'},
   {id:'churn_men',     name:'Churn rate (cohorte 30d)',        sub:'Rolling diario · cohorte móvil',   tip:'Fórmula: activos en t-60→t-30 que no siguen activos en t-30→t / total cohorte\nFuente: card 890 (Metabase)\nHoy: 15 churnearon de 135 activos en ventana',    val:11.1,  prev:10.5,   tq1:5,   tq2:4,   unit:'%', hb:false, cat:'Retención',       lu:'2026-04-03'},
   {id:'leads_total',   name:'Leads totales (7d)',             sub:'Todos los orígenes · rolling 7d',    tip:'Fórmula: todos los leads creados en últimos 7 días\nAgrupado por origen_del_contacto\nFuente: hubspot_contacts (Metabase)',  val:163,  prev:137,   tq1:60,  tq2:120, unit:'',  hb:true,  cat:'Adquisición',     lu:'2026-04-03'},
@@ -213,11 +223,20 @@ const HIST=[
   {sem:'Mar 2, 2026',  wau:139, nuevos:6,  churned:0,   net:6,   act:65.0, leads:164, churn:6.1,  monthStart:true },
   {sem:'Mar 9, 2026',  wau:142, nuevos:8,  churned:-5,  net:3,   act:68.8, leads:140, churn:5.9,  monthStart:false},
   {sem:'Mar 16, 2026', wau:143, nuevos:4,  churned:-3,  net:1,   act:54.5, leads:386, churn:7.8,  monthStart:false},
-  {sem:'Mar 23, 2026', wau:143, nuevos:3,  churned:-3,  net:0,   act:33.3, leads:155, churn:8.5,  monthStart:false},
-  {sem:'Mar 30, 2026', wau:148, nuevos:7,  churned:-2,  net:5,   act:47.4, leads:163, churn:11.1, monthStart:false},
+  {sem:'Mar 23, 2026', wau:143, nuevos:3,  churned:-3,  net:0,   act:33.3, leads:155, churn:8.5,  fb:90,  inbweb:8,  retool:6,  sindat:12, li_ads:0, ig:9, obmail:2, ref:5, otros:5, cac:null,   cont:null, monthStart:false},
+  {sem:'Mar 30, 2026', wau:148, nuevos:7,  churned:-2,  net:5,   act:47.4, leads:163, churn:11.1, fb:86,  inbweb:25, retool:17, sindat:14, li_ads:7, ig:6, obmail:4, ref:2, otros:2, cac:192.01, cont:0,    monthStart:false},
 ];
 
-const TGT={wau:140,nuevos:12,act:50,leads:60,churn:5};
+const TGT={wau:140,nuevos:12,act:50,leads:60,churn:5,fb:null,inbweb:null,retool:null,sindat:null,li_ads:null,ig:null,obmail:null,ref:null,otros:null,cac:100,cont:3};
+
+// Derive prev from HIST (always 1 week ago)
+(function(){
+  const map={activos_total:'wau',nuevos_act_sem:'nuevos',tasa_act_temp:'act',churn_men:'churn',leads_total:'leads',leads_fb:'fb',leads_inbweb:'inbweb',leads_retool:'retool',leads_sindat:'sindat',leads_li_ads:'li_ads',leads_ig:'ig',leads_obmail:'obmail',leads_ref:'ref',leads_otros:'otros',cac_meta:'cac',contadores:'cont'};
+  if(HIST.length>=2){
+    const prev=HIST[HIST.length-2];
+    DEFS.forEach(d=>{if(map[d.id]!==undefined) d.prev=prev[map[d.id]]??null;});
+  }
+})();
 
 let mode='view',q=1;
 const data=DEFS.map(d=>({...d}));
@@ -347,8 +366,19 @@ function renderHist(){
       `<td>${chd}</td>`+
       `<td>${net}</td>`+
       `<td>${hst(row.act,'%',TGT.act,true)}</td>`+
+      `<td>${hst(row.churn,'%',TGT.churn,false)}</td>`+
       `<td>${hst(row.leads,'',TGT.leads,true)}</td>`+
-      `<td>${hst(row.churn,'%',TGT.churn,false)}</td>`;
+      `<td>${hst(row.fb,'',null,true)}</td>`+
+      `<td>${hst(row.inbweb,'',null,true)}</td>`+
+      `<td>${hst(row.retool,'',null,true)}</td>`+
+      `<td>${hst(row.sindat,'',null,true)}</td>`+
+      `<td>${hst(row.li_ads,'',null,true)}</td>`+
+      `<td>${hst(row.ig,'',null,true)}</td>`+
+      `<td>${hst(row.obmail,'',null,true)}</td>`+
+      `<td>${hst(row.ref,'',null,true)}</td>`+
+      `<td>${hst(row.otros,'',null,true)}</td>`+
+      `<td>${hst(row.cac,'$',TGT.cac,false)}</td>`+
+      `<td>${hst(row.cont,'',TGT.cont,true)}</td>`;
     tb.appendChild(tr);
   });
 }
