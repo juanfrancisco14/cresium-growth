@@ -4,6 +4,17 @@ on:
     - cron: '0 12 * * 1-5'
   workflow_dispatch:
 jobs:
+  # GitHub apaga los workflows programados tras 60 días sin commits (pasó el 4/9/2026).
+  # Re-habilitar el workflow por API reinicia ese reloj sin necesidad de commits.
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Reiniciar el reloj de inactividad
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/churn-alert.yml/enable"
   churn-alert:
     runs-on: ubuntu-latest
     steps:
